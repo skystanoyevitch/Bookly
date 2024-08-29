@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { Button, Pressable, StyleSheet, TextInput, View } from "react-native";
 import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -10,6 +10,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const [text, setText] = useState("");
+
+  const buttonPressed = () => {
+    alert("button pressed!");
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -25,9 +29,13 @@ export default function HomeScreen() {
           onChangeText={(text) => setText(text)}
           value={text}
           placeholder="Enter Text Here"
-        >
-          <View></View>
-        </TextInput>
+        ></TextInput>
+        <Button title="Click Me!" color={"green"}></Button>
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.buttonStyle} onPress={buttonPressed}>
+            <Text>Click me too!</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -52,7 +60,15 @@ const styles = StyleSheet.create({
     margin: 15,
     padding: 22,
   },
-  textView: {
-    // backgroundColor: "green",
+  buttonStyle: {
+    borderWidth: 1,
+    borderColor: "black",
+    padding: 20,
+    elevation: 3,
+    backgroundColor: "yellow",
+  },
+  buttonContainer: {
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
