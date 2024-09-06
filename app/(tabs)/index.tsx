@@ -1,16 +1,27 @@
 import { useState } from "react";
-import { Button, Pressable, StyleSheet, TextInput, View } from "react-native";
+import {
+  Alert,
+  Button,
+  Image,
+  ImageBackground,
+  Modal,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  TextInput,
+  View,
+  TouchableHighlight,
+} from "react-native";
 import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// import { HelloWave } from "@/components/HelloWave";
-// import ParallaxScrollView from "@/components/ParallaxScrollView";
-// import { ThemedText } from "@/components/ThemedText";
-// import { ThemedView } from "@/components/ThemedView";
-
 export default function HomeScreen() {
   const [text, setText] = useState("");
+  const [isEnabled, setisEnabled] = useState(false);
+  const [modalVisible, setmodalVisible] = useState(false);
 
+  const toggleSwitch = () => setisEnabled((previousState) => !previousState);
   const buttonPressed = () => {
     alert("button pressed!");
   };
@@ -35,6 +46,58 @@ export default function HomeScreen() {
           <Pressable style={styles.buttonStyle} onPress={buttonPressed}>
             <Text>Click me too!</Text>
           </Pressable>
+        </View>
+        <View>
+          <Image
+            source={require("../../assets/images/adaptive-icon.png")}
+            style={{ width: 200, height: 200 }}
+          />
+          <Image />
+          <ImageBackground
+            source={require("../../assets/images/bigsmiley.jpg")}
+            style={styles.imageBackgroundStyles}
+          >
+            <Text style={{ color: "white" }}>This is an Image Background</Text>
+          </ImageBackground>
+
+          <Text>Enable Feature:</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+          />
+
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="#6A0E37"
+            hidden={false}
+            animated={true}
+            translucent={true}
+          />
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={modalVisible}
+          >
+            <SafeAreaView>
+              <View>
+                <Text>Wello Horld!</Text>
+                <TouchableHighlight
+                  onPress={() => setmodalVisible(!modalVisible)}
+                >
+                  <Text>Hide Modal</Text>
+                </TouchableHighlight>
+              </View>
+            </SafeAreaView>
+          </Modal>
+          <TouchableHighlight
+            onPress={() => {
+              setmodalVisible(true);
+            }}
+          >
+            <Text>Show Modal</Text>
+          </TouchableHighlight>
         </View>
       </View>
     </SafeAreaView>
@@ -70,5 +133,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  imageBackgroundStyles: {
+    width: "100%",
+    height: 150,
   },
 });
