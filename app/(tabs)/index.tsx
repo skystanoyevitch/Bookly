@@ -1,34 +1,23 @@
 import { useState } from "react";
-import {
-  Alert,
-  Button,
-  Image,
-  ImageBackground,
-  Modal,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  TextInput,
-  View,
-  TouchableHighlight,
-} from "react-native";
+import { Button, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [text, setText] = useState("");
-  const [isEnabled, setisEnabled] = useState(false);
-  const [modalVisible, setmodalVisible] = useState(false);
+  // const [text, setText] = useState("");
+  // const [isEnabled, setisEnabled] = useState(false);
+  // const [modalVisible, setmodalVisible] = useState(false);
 
-  const toggleSwitch = () => setisEnabled((previousState) => !previousState);
+  // const toggleSwitch = () => setisEnabled((previousState) => !previousState);
   const buttonPressed = () => {
     alert("button pressed!");
   };
   return (
     <SafeAreaView style={styles.container}>
       <View>
-        <Text>Home Page</Text>
+        <Pressable onPress={buttonPressed}>
+          <Text style={styles.buttonStyle}>Add Book</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -55,10 +44,9 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     borderWidth: 1,
-    borderColor: "black",
-    padding: 20,
-    elevation: 3,
-    backgroundColor: "yellow",
+    borderColor: "blue",
+    borderRadius: 100,
+    padding: 15,
   },
   buttonContainer: {
     alignItems: "center",
