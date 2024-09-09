@@ -4,7 +4,7 @@ import React from "react";
 export default function settings() {
   return (
     <View>
-      <Text>settings</Text>
+      <Text>settings page</Text>
     </View>
   );
 }
