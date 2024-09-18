@@ -1,65 +1,76 @@
-import { CameraView, Camera } from "expo-camera";
+import { CameraView, Camera, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
-import { Button, Pressable, StyleSheet, View } from "react-native";
+import { Alert, Button, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const [hasPermission, setHasPermission] = useState<any | null>(null);
   const [scanner, setScanner] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
 
-  useEffect(() => {
-    const getCameraPermissions = async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    };
+  const getCameraPermissions = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    // setHasPermission(status === "granted");
 
-    getCameraPermissions();
-  }, []);
+    if (status === "granted") {
+      setHasPermission(true);
+      setCameraActive(true);
+      setScanner(false);
+      Alert.alert("Permission granted", "You can now access the camera!");
+    } else {
+      setHasPermission(false);
+      Alert.alert("Permission denied", "You cannot access the camera.");
+    }
+  };
 
   const handleBarcodeScanner = ({ type, data }: any) => {
     setScanner(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    Alert.alert(
+      `Bar code with type ${type} and data ${data} has been scanned!`
+    );
+    setCameraActive(false);
   };
 
-  if (hasPermission === null) {
-    return <Text>Requesting for Camera Permissions</Text>;
-  }
-
-  if (hasPermission === false) {
-    return <Text> No Access to Camera</Text>;
-  }
-
-  // const buttonPressed = () => {
-  //   alert("button pressed!");
-  // };
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        {/* <CameraView
+      <View style={styles.mainViewContainer}>
+        {!cameraActive ? (
+          <Pressable style={styles.buttonStyle} onPress={getCameraPermissions}>
+            <Text>Tap to scan QR Code</Text>
+          </Pressable>
+        ) : (
+          <CameraView
+            style={styles.camera}
+            facing="back"
             onBarcodeScanned={scanner ? undefined : handleBarcodeScanner}
-            barcodeScannerSettings={{
-              barcodeTypes: [],
-            }}
           />
-          {scanner && (
-          )} */}
-        <Pressable>
-          <Text onPress={() => setScanner(false)}>Tap to scan again</Text>
-        </Pressable>
+        )}
+        {/* {scanner && (
+          <Pressable
+            style={styles.buttonStyle}
+            onPress={() => setScanner(false)}
+          >
+            <Text>Scan another Barcode</Text>
+          </Pressable>
+        )} */}
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    height: "100%",
+    width: "100%",
+  },
   title: {
     color: "blue",
     textAlign: "center",
     fontSize: 20,
   },
 
-  container: {
+  mainViewContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -85,5 +96,9 @@ const styles = StyleSheet.create({
   imageBackgroundStyles: {
     width: "100%",
     height: 150,
+  },
+  camera: {
+    width: "100%",
+    height: "100%",
   },
 });
