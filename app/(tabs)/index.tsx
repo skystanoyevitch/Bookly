@@ -1,3 +1,4 @@
+import { getBookByIsbn } from "@/api/books";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
 import { useEffect, useState } from "react";
 import { Alert, Button, Pressable, StyleSheet, View } from "react-native";
@@ -24,11 +25,13 @@ export default function HomeScreen() {
     }
   };
 
-  const handleBarcodeScanner = ({ type, data }: any) => {
+  const handleBarcodeScanner = async ({ type, data }: any) => {
     setScanner(true);
     Alert.alert(
       `Bar code with type ${type} and data ${data} has been scanned!`
     );
+    const bookData = await getBookByIsbn(data);
+    console.log(bookData);
     setCameraActive(false);
   };
 
