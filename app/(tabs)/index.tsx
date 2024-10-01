@@ -1,7 +1,16 @@
 import { getBookByIsbn } from "@/api/books";
+import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
+import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Alert, Button, Pressable, StyleSheet, View } from "react-native";
+import {
+  Alert,
+  Button,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -9,8 +18,25 @@ export default function HomeScreen() {
   const [hasPermission, setHasPermission] = useState<any | null>(null);
   const [scanner, setScanner] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
+  const [books, setBooks] = useState<any[]>([]);
+
+  // TODO: fix and refactor logic to add book to firestore DB and retrieve it in the UI //
+
+  useEffect(() => {
+    // when page loads, get books data from firebase database
+    const getCollection = collection(FIRESTORE_DB, "users", "Somin", "Books");
+
+    onSnapshot(getCollection, (snapshot) => {
+      const books = snapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data };
+      });
+
+      setBooks(books);
+    });
+  }, []);
 
   const getCameraPermissions = async () => {
+    // ask user for permission to use camera
     const { status } = await Camera.requestCameraPermissionsAsync();
     // setHasPermission(status === "granted");
 
@@ -27,12 +53,28 @@ export default function HomeScreen() {
 
   const handleBarcodeScanner = async ({ type, data }: any) => {
     setScanner(true);
-    Alert.alert(
-      `Bar code with type ${type} and data ${data} has been scanned!`
-    );
+    // Alert.alert(
+    //   `Bar code with type ${type} and data ${data} has been scanned!`
+    // );
     const bookData = await getBookByIsbn(data);
     console.log(bookData);
+    addBook(bookData);
     setCameraActive(false);
+  };
+
+  const addBook = async (book: any) => {
+    // After user successfully scanned book, add to newBook object
+    const newBook = {
+      bookId: book.id,
+      volumeInfo: book.volumeInfo,
+      textSnippet: book.searchInfo.textSnippet,
+    };
+
+    // Add newBook data to firebase Database Collection
+    const db = await addDoc(
+      collection(FIRESTORE_DB, "users", "Simon", "Books"),
+      newBook
+    );
   };
 
   return (
@@ -49,14 +91,12 @@ export default function HomeScreen() {
             onBarcodeScanned={scanner ? undefined : handleBarcodeScanner}
           />
         )}
-        {/* {scanner && (
-          <Pressable
-            style={styles.buttonStyle}
-            onPress={() => setScanner(false)}
-          >
-            <Text>Scan another Barcode</Text>
-          </Pressable>
-        )} */}
+
+        <FlatList
+          data={books}
+          renderItem={({ item }) => <Text>{item.volumeInfo.title}</Text>}
+          keyExtractor={(item) => item.id}
+        />
       </View>
     </SafeAreaView>
   );
