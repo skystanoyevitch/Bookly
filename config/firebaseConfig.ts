@@ -1,7 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import "dotenv/config";
+// require("dotenv").config();
+// console.log(process.env);
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
