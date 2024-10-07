@@ -26,13 +26,13 @@ export default function HomeScreen() {
     // when page loads, get books data from firebase database
     const getCollection = collection(FIRESTORE_DB, "users", "Somin", "Books");
 
-    onSnapshot(getCollection, (snapshot) => {
-      const books = snapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data };
-      });
+    // onSnapshot(getCollection, (snapshot) => {
+    //   const books = snapshot.docs.map((doc) => {
+    //     return { id: doc.id, ...doc.data };
+    //   });
 
-      setBooks(books);
-    });
+    //   setBooks(books);
+    // });
   }, []);
 
   const getCameraPermissions = async () => {
@@ -53,11 +53,8 @@ export default function HomeScreen() {
 
   const handleBarcodeScanner = async ({ type, data }: any) => {
     setScanner(true);
-    // Alert.alert(
-    //   `Bar code with type ${type} and data ${data} has been scanned!`
-    // );
     const bookData = await getBookByIsbn(data);
-    console.log(bookData);
+    console.log(bookData["items"]);
     addBook(bookData);
     setCameraActive(false);
   };
@@ -65,16 +62,16 @@ export default function HomeScreen() {
   const addBook = async (book: any) => {
     // After user successfully scanned book, add to newBook object
     const newBook = {
-      bookId: book.id,
+      bookId: book.items.id,
       volumeInfo: book.volumeInfo,
-      textSnippet: book.searchInfo.textSnippet,
     };
 
-    // Add newBook data to firebase Database Collection
-    const db = await addDoc(
-      collection(FIRESTORE_DB, "users", "Simon", "Books"),
-      newBook
-    );
+    console.log(newBook);
+
+    // Add newBook data and create new document to collection
+    const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
+
+    // console.log(db);
   };
 
   return (
@@ -92,11 +89,11 @@ export default function HomeScreen() {
           />
         )}
 
-        <FlatList
+        {/* <FlatList
           data={books}
           renderItem={({ item }) => <Text>{item.volumeInfo.title}</Text>}
           keyExtractor={(item) => item.id}
-        />
+        /> */}
       </View>
     </SafeAreaView>
   );
