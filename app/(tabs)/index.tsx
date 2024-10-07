@@ -54,7 +54,7 @@ export default function HomeScreen() {
   const handleBarcodeScanner = async ({ type, data }: any) => {
     setScanner(true);
     const bookData = await getBookByIsbn(data);
-    console.log(bookData["items"]);
+    console.log(bookData.items[0].id);
     addBook(bookData);
     setCameraActive(false);
   };
