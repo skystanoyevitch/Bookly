@@ -1,7 +1,7 @@
 import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -24,16 +24,33 @@ export default function HomeScreen() {
 
   useEffect(() => {
     // when page loads, get books data from firebase database
-    const getCollection = collection(FIRESTORE_DB, "users", "Somin", "Books");
 
+    const getAllDocuments = async () => {
+      const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
+      const booksData = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+        // console.log(doc.id, " => ", doc.data());
+      });
+      setBooks(booksData);
+
+      console.log(books);
+    };
+
+    // const getCollection = collection(FIRESTORE_DB, "users");
+    // const snapshot = getCollection.get()
+    // if (getCollection.empty) {
+    //   console.log('No matching documents.');
+    //   return;
+    // }
     // onSnapshot(getCollection, (snapshot) => {
     //   const books = snapshot.docs.map((doc) => {
     //     return { id: doc.id, ...doc.data };
     //   });
-
     //   setBooks(books);
     // });
-  }, []);
+
+    getAllDocuments();
+  }, [books]);
 
   const getCameraPermissions = async () => {
     // ask user for permission to use camera
@@ -54,7 +71,7 @@ export default function HomeScreen() {
   const handleBarcodeScanner = async ({ type, data }: any) => {
     setScanner(true);
     const bookData = await getBookByIsbn(data);
-    console.log(bookData.items[0].id);
+    // console.log(bookData.items[0].id);
     addBook(bookData);
     setCameraActive(false);
   };
@@ -91,11 +108,11 @@ export default function HomeScreen() {
           />
         )}
 
-        {/* <FlatList
+        <FlatList
           data={books}
-          renderItem={({ item }) => <Text>{item.volumeInfo.title}</Text>}
           keyExtractor={(item) => item.id}
-        /> */}
+          renderItem={({ item }) => <Text> --- {item.volumeInfo.title}</Text>}
+        />
       </View>
     </SafeAreaView>
   );
