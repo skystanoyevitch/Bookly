@@ -62,15 +62,17 @@ export default function HomeScreen() {
   const addBook = async (book: any) => {
     // After user successfully scanned book, add to newBook object
     const newBook = {
-      bookId: book.items.id,
-      volumeInfo: book.volumeInfo,
+      bookId: book.items[0].id,
+      volumeInfo: book.items[0].volumeInfo,
     };
 
-    console.log(newBook);
+    try {
+      const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
+    } catch (error) {
+      console.log("error adding document", error);
+    }
 
-    // Add newBook data and create new document to collection
-    const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
-
+    // console.log(newBook);
     // console.log(db);
   };
 
