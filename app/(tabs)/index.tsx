@@ -8,8 +8,10 @@ import {
   Button,
   FlatList,
   Image,
+  ListRenderItem,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Text } from "react-native";
@@ -94,6 +96,19 @@ export default function HomeScreen() {
     // console.log(db);
   };
 
+  const renderItems: ListRenderItem<any> = ({ item }) => (
+    <View style={{ paddingTop: 10, paddingBottom: 10 }}>
+      <TouchableOpacity>
+        <Image
+          source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
+          style={{ width: 100, height: 100 }}
+        />
+      </TouchableOpacity>
+      <Text style={{ padding: 20 }}> --- {item.volumeInfo.title}</Text>
+      <Text>{item.volumeInfo.description}</Text>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainViewContainer}>
@@ -110,18 +125,10 @@ export default function HomeScreen() {
         )}
 
         <FlatList
+          style={{ margin: 20 }}
           data={books}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View>
-              <Image
-                source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
-                style={{ width: 100, height: 100 }}
-              />
-              <Text> --- {item.volumeInfo.title}</Text>
-              <Text>{item.volumeInfo.description}</Text>
-            </View>
-          )}
+          renderItem={renderItems}
         />
       </View>
     </SafeAreaView>
