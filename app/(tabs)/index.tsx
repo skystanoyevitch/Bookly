@@ -7,6 +7,7 @@ import {
   Alert,
   Button,
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   View,
@@ -111,7 +112,16 @@ export default function HomeScreen() {
         <FlatList
           data={books}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <Text> --- {item.volumeInfo.title}</Text>}
+          renderItem={({ item }) => (
+            <View>
+              <Image
+                source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
+                style={{ width: 100, height: 100 }}
+              />
+              <Text> --- {item.volumeInfo.title}</Text>
+              <Text>{item.volumeInfo.description}</Text>
+            </View>
+          )}
         />
       </View>
     </SafeAreaView>
