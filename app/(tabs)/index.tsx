@@ -1,6 +1,7 @@
 import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
+import { router, useRouter } from "expo-router";
 import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const [scanner, setScanner] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [books, setBooks] = useState<any[]>([]);
+  const router = useRouter();
 
   // TODO: fix and refactor logic to add book to firestore DB and retrieve it in the UI //
 
@@ -98,14 +100,14 @@ export default function HomeScreen() {
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
     <View style={{ paddingTop: 10, paddingBottom: 10 }}>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push(`/(Book)/${item.id}`)}>
         <Image
           source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
-          style={{ width: 100, height: 100 }}
+          style={{ width: 200, height: 200 }}
         />
       </TouchableOpacity>
-      <Text style={{ padding: 20 }}> --- {item.volumeInfo.title}</Text>
-      <Text>{item.volumeInfo.description}</Text>
+      <Text style={{ padding: 20 }}>{item.volumeInfo.title}</Text>
+      <Text>{item.volumeInfo.author}</Text>
     </View>
   );
 
