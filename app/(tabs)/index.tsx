@@ -38,7 +38,7 @@ export default function HomeScreen() {
       });
       setBooks(booksData);
 
-      console.log(books);
+      // console.log(books);
     };
 
     // const getCollection = collection(FIRESTORE_DB, "users");
@@ -99,21 +99,21 @@ export default function HomeScreen() {
   };
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
-    <View style={{ paddingTop: 10, paddingBottom: 10 }}>
-      <TouchableOpacity onPress={() => router.push(`/(Book)/${item.id}`)}>
+    <View style={styles.bookListContainer}>
+      <TouchableOpacity onPress={() => router.push(`../(Book)/${item.id}`)}>
         <Image
           source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
-          style={{ width: 200, height: 200 }}
+          style={{ width: 150, height: 200 }}
         />
       </TouchableOpacity>
-      <Text style={{ padding: 20 }}>{item.volumeInfo.title}</Text>
+      <Text style={{ padding: 10 }}>{item.volumeInfo.title}</Text>
       <Text>{item.volumeInfo.author}</Text>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.mainViewContainer}>
+    <View>
+      <View style={styles.cameraViewContainer}>
         {!cameraActive ? (
           <Pressable style={styles.buttonStyle} onPress={getCameraPermissions}>
             <Text>Tap to scan QR Code</Text>
@@ -125,7 +125,9 @@ export default function HomeScreen() {
             onBarcodeScanned={scanner ? undefined : handleBarcodeScanner}
           />
         )}
+      </View>
 
+      <View style={styles.mainViewContainer}>
         <FlatList
           style={{ margin: 20 }}
           data={books}
@@ -133,25 +135,26 @@ export default function HomeScreen() {
           renderItem={renderItems}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    height: "100%",
-    width: "100%",
-  },
-  title: {
-    color: "blue",
-    textAlign: "center",
-    fontSize: 20,
+  container: {},
+  cameraViewContainer: {
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
 
   mainViewContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    // margin: 10,
+  },
+
+  bookListContainer: {
+    flexDirection: "row",
+    gap: 10,
+    paddingVertical: 10
   },
 
   textInput: {
