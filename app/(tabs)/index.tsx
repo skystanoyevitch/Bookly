@@ -106,8 +106,15 @@ export default function HomeScreen() {
           style={{ width: 150, height: 200 }}
         />
       </TouchableOpacity>
-      <Text style={{ padding: 10 }}>{item.volumeInfo.title}</Text>
-      <Text>{item.volumeInfo.author}</Text>
+      <View>
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+          {item.volumeInfo.title}
+        </Text>
+        <Text style={{ fontSize: 14, fontStyle: "italic" }}>
+          {item.volumeInfo.authors}
+        </Text>
+        <Text>{item.volumeInfo.subtitle}</Text>
+      </View>
     </View>
   );
 
