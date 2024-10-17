@@ -1,7 +1,7 @@
 import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
@@ -100,7 +100,7 @@ export default function HomeScreen() {
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
     <View style={styles.bookListContainer}>
-      <TouchableOpacity onPress={() => router.push(`../(Book)/${item.id}`)}>
+      <TouchableOpacity onPress={() => router.push(`./(Book)/${item.id}`)}>
         <Image
           source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
           style={{ width: 150, height: 200 }}
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   bookListContainer: {
     flexDirection: "row",
     gap: 10,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
 
   textInput: {
