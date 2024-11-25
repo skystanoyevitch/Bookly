@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    // "jsEngine": "jsc",
     "jsEngine": "hermes",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -15,7 +14,6 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      // "jsEngine": "jsc",
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs camera access to scan barcodes."
@@ -39,10 +37,12 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "newArchEnabled": true
   }
 }
