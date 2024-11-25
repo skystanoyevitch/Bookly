@@ -74,7 +74,9 @@ export default function HomeScreen() {
   };
 
   const handleBarcodeScanner = async ({ type, data }: any) => {
+    console.log("camera loading...");
     setScanner(true);
+    console.log("camera opened!");
     const bookData = await getBookByIsbn(data);
     // console.log(bookData.items[0].id);
     addBook(bookData);
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
     height: 150,
   },
   camera: {
-    width: "100%",
-    height: "100%",
+    width: 300,
+    height: 300,
   },
 });
