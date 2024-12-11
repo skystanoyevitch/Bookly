@@ -2,7 +2,13 @@ import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
-import { addDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -13,6 +19,7 @@ import {
   Modal,
   Pressable,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -32,50 +39,50 @@ export default function HomeScreen() {
   const [books, setBooks] = useState<any[]>([]);
   const router = useRouter();
   const [dropdownVisible, setDropdownVisible] = useState(false);
-
-  // TODO: fix and refactor logic to add book to firestore DB and retrieve it in the UI //
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredBooks, setFilteredBooks] = useState<any[]>([]);
 
   useEffect(() => {
     // when page loads, get books data from firebase database
-
-    const getAllDocuments = async () => {
-      const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
-      const booksData = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-        // console.log(doc.id, " => ", doc.data());
-      });
-      setBooks(booksData);
-
-      // console.log(books);
-    };
-
-    // const getCollection = collection(FIRESTORE_DB, "users");
-    // const snapshot = getCollection.get()
-    // if (getCollection.empty) {
-    //   console.log('No matching documents.');
-    //   return;
-    // }
-    // onSnapshot(getCollection, (snapshot) => {
-    //   const books = snapshot.docs.map((doc) => {
-    //     return { id: doc.id, ...doc.data };
+    // const getAllDocuments = async () => {
+    //   const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
+    //   const booksData = querySnapshot.docs.map((doc) => {
+    //     return { id: doc.id, ...doc.data() };
     //   });
-    //   setBooks(books);
-    // });
+    //   setBooks(booksData);
+    // };
 
     getAllDocuments();
   }, [books]);
 
+  const getAllDocuments = async () => {
+    const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
+    const booksData = querySnapshot.docs.map((doc) => {
+      return { id: doc.id, ...doc.data() };
+    });
+    setBooks(booksData);
+  };
+
+  const handleSearch = (query: any) => {
+    setSearchQuery(query);
+    if (query.trim() !== "") {
+      const filteredData = books.filter((book) =>
+        book.volumeInfo.title.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredBooks(filteredData);
+    } else if (query.trim() === "") {
+      return books;
+    }
+  };
+
   const getCameraPermissions = async () => {
     // ask user for permission to use camera
     const { status } = await Camera.requestCameraPermissionsAsync();
-    // setHasPermission(status === "granted");
-
     if (status === "granted") {
       setHasPermission(true);
-      setCameraActive(true);
-      setScanner(false);
-      setDropdownVisible(false);
-      Alert.alert("Permission granted", "You can now access the camera!");
+      // setCameraActive(true);
+      // setScanner(false);
+      // setDropdownVisible(false);
     } else {
       setHasPermission(false);
       Alert.alert("Permission denied", "You cannot access the camera.");
@@ -86,28 +93,17 @@ export default function HomeScreen() {
     setDropdownVisible((prevState) => !prevState);
   };
   const handleOptionPress = (option: any) => {
-    // alert(`${option.label} - pressed!`);
-
-    if ((option = "QR Code")) {
+    if (option.label === "QR Code") {
       getCameraPermissions();
+      setCameraActive(true);
+      setScanner(false);
+      setDropdownVisible(false);
     }
-    // switch (option) {
-    //   case "QR Code":
-    //     getCameraPermissions;
-
-    //     break;
-
-    //   default:
-    //     break;
-    // }
   };
 
   const handleBarcodeScanner = async ({ type, data }: any) => {
-    console.log("camera loading...");
     setScanner(true);
-    console.log("camera opened!");
     const bookData = await getBookByIsbn(data);
-    // console.log(bookData.items[0].id);
     addBook(bookData);
     setCameraActive(false);
   };
@@ -124,9 +120,6 @@ export default function HomeScreen() {
     } catch (error) {
       console.log("error adding document", error);
     }
-
-    // console.log(newBook);
-    // console.log(db);
   };
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
@@ -151,9 +144,16 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search books..."
+        value={searchQuery}
+        onChangeText={handleSearch}
+      />
+
       <FlatList
         style={{ marginLeft: 20, marginRight: 20 }}
-        data={books}
+        data={searchQuery ? filteredBooks : books}
         keyExtractor={(item) => item.id}
         renderItem={renderItems}
       />
@@ -162,11 +162,26 @@ export default function HomeScreen() {
           <Text>+</Text>
         </Pressable>
       ) : (
-        <CameraView
-          style={styles.camera}
-          facing="back"
-          onBarcodeScanned={scanner ? undefined : handleBarcodeScanner}
-        />
+        <View>
+          <CameraView
+            style={styles.camera}
+            facing="back"
+            onBarcodeScanned={scanner ? undefined : handleBarcodeScanner}
+          />
+          <Pressable
+            style={{
+              width: 60,
+              height: 40,
+              backgroundColor: "yellow",
+              borderRadius: 15,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => setCameraActive(false)}
+          >
+            <Text>X</Text>
+          </Pressable>
+        </View>
       )}
 
       {dropdownVisible && (
@@ -195,7 +210,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  mainViewContainer: {},
+  searchBar: {
+    height: 50,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
 
   bookListContainer: {
     flexDirection: "row",
