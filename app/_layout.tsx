@@ -11,6 +11,14 @@ const RootLayout = () => {
           title: "Book",
         }}
       />
+      <Stack.Screen
+        name="(AddBook)/BookOptions"
+        options={{
+          presentation: "modal", // Enables modal style navigation for iOS
+          title: "AddBook",
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 };
