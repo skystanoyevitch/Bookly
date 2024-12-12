@@ -2,6 +2,7 @@ import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
+import { navigate } from "expo-router/build/global-state/routing";
 import {
   addDoc,
   collection,
@@ -44,14 +45,6 @@ export default function HomeScreen() {
 
   useEffect(() => {
     // when page loads, get books data from firebase database
-    // const getAllDocuments = async () => {
-    //   const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
-    //   const booksData = querySnapshot.docs.map((doc) => {
-    //     return { id: doc.id, ...doc.data() };
-    //   });
-    //   setBooks(booksData);
-    // };
-
     getAllDocuments();
   }, [books]);
 
@@ -92,6 +85,7 @@ export default function HomeScreen() {
   const onOpenDropdownList = () => {
     setDropdownVisible((prevState) => !prevState);
   };
+
   const handleOptionPress = (option: any) => {
     if (option.label === "QR Code") {
       getCameraPermissions();
@@ -104,8 +98,13 @@ export default function HomeScreen() {
   const handleBarcodeScanner = async ({ type, data }: any) => {
     setScanner(true);
     const bookData = await getBookByIsbn(data);
-    addBook(bookData);
+    console.log(bookData.items[0].volumeInfo);
+    // addBook(bookData);
     setCameraActive(false);
+    router.push({
+      pathname: "/(AddBook)/BookOptions",
+      params: bookData.items[0].volumeInfo, // Pass book data as params
+    });
   };
 
   const addBook = async (book: any) => {
