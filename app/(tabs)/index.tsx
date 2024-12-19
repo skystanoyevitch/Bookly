@@ -95,31 +95,37 @@ export default function HomeScreen() {
     }
   };
 
-  const handleBarcodeScanner = async ({ type, data }: any) => {
+  const handleBarcodeScanner = async ({ data }: any) => {
     setScanner(true);
     const bookData = await getBookByIsbn(data);
-    console.log(bookData.items[0].volumeInfo);
     // addBook(bookData);
     setCameraActive(false);
+    // console.log(bookData.items[0].volumeInfo);
     router.push({
       pathname: "/(AddBook)/BookOptions",
-      params: bookData.items[0].volumeInfo, // Pass book data as params
+      params: {
+        title: bookData.items[0].volumeInfo.title,
+        description: bookData.items[0].volumeInfo.description,
+        authors: bookData.items[0].volumeInfo.authors,
+        volumeInfo: JSON.stringify({ info: bookData.items[0].volumeInfo }),
+        bookId: bookData.items[0].id,
+      }, // Pass book data as params
     });
   };
 
-  const addBook = async (book: any) => {
-    // After user successfully scanned book, add to newBook object
-    const newBook = {
-      bookId: book.items[0].id,
-      volumeInfo: book.items[0].volumeInfo,
-    };
+  // const addBook = async (book: any) => {
+  //   // After user successfully scanned book, add to newBook object
+  //   const newBook = {
+  //     bookId: book.items[0].id,
+  //     volumeInfo: book.items[0].volumeInfo,
+  //   };
 
-    try {
-      const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
-    } catch (error) {
-      console.log("error adding document", error);
-    }
-  };
+  //   try {
+  //     const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
+  //   } catch (error) {
+  //     console.log("error adding document", error);
+  //   }
+  // };
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
     <View style={styles.bookListContainer}>
