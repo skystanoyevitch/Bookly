@@ -104,9 +104,7 @@ export default function HomeScreen() {
     router.push({
       pathname: "/(AddBook)/BookOptions",
       params: {
-        title: bookData.items[0].volumeInfo.title,
-        description: bookData.items[0].volumeInfo.description,
-        authors: bookData.items[0].volumeInfo.authors,
+        data: bookData,
         volumeInfo: JSON.stringify({ info: bookData.items[0].volumeInfo }),
         bookId: bookData.items[0].id,
       }, // Pass book data as params
@@ -131,18 +129,18 @@ export default function HomeScreen() {
     <View style={styles.bookListContainer}>
       <TouchableOpacity onPress={() => router.push(`./(Book)/${item.id}`)}>
         <Image
-          source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
+          source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
           style={{ width: 100, height: 100 }}
         />
       </TouchableOpacity>
       <View>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          {item.volumeInfo.title}
+          {item.volumeInfo?.title}
         </Text>
         <Text style={{ fontSize: 14, fontStyle: "italic" }}>
-          {item.volumeInfo.authors}
+          {item.volumeInfo?.authors}
         </Text>
-        <Text>{item.volumeInfo.subtitle}</Text>
+        <Text>{item.volumeInfo?.subtitle}</Text>
       </View>
     </View>
   );

@@ -5,36 +5,31 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 const BookOptions = () => {
   // const router = useRouter();
-  const { bookId, title, authors, description, volumeInfo }: any =
-    useLocalSearchParams();
+  const { bookId, volumeInfo }: any = useLocalSearchParams();
   const parsedPreferences = volumeInfo ? JSON.parse(volumeInfo) : null;
 
   // const { id, [searchInfo], textSnippet }: any = useLocalSearchParams();
   // console.log("Destructured data", id, searchInfo, textSnippet);
-  console.log(
-    "params:",
-    bookId,
-    title,
-    authors,
-    description,
-    "info:",
-    parsedPreferences.info.title
-  );
+  // console.log("params:", bookId, "info:", parsedPreferences.info);
 
-  // const addBook = async () => {
-  //   // After user successfully scanned book, add to newBook object
-  //   const newBook = {
-  //     // bookId: id,
-  //     title: "",
-  //   };
-
-  //   try {
-  //     const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
-  //     router.push("/");
-  //   } catch (error) {
-  //     console.log("error adding document", error);
-  //   }
+  // const handleOnPress = () => {
+  //   addBook(bookId, parsedPreferences.info);
   // };
+  const addBook = async (id: any, bookInfo: any) => {
+    // After user successfully scanned book and clicked "add", add to newBook object and firebase DB //
+    const newBook = {
+      bookId: id,
+      volumeInfo: bookInfo,
+    };
+
+    try {
+      const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
+      // console.log(db);
+      router.back();
+    } catch (error) {
+      console.log("error adding document", error);
+    }
+  };
 
   return (
     <View>
@@ -42,12 +37,20 @@ const BookOptions = () => {
       <Text>Author: {parsedPreferences?.info.authors}</Text>
       <Text>Description: {parsedPreferences?.info.description}</Text>
 
-      {/* <TouchableOpacity onPress={addBook}>
-        <Text>Add Book</Text>
+      <TouchableOpacity onPress={() => addBook(bookId, parsedPreferences.info)}>
+        <Text
+          style={{
+            padding: 20,
+            borderRadius: 20,
+            backgroundColor: "gray",
+          }}
+        >
+          Add Book
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity>
         <Text>Cancel</Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
 };
