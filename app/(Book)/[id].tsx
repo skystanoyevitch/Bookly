@@ -3,27 +3,40 @@ import React, { useEffect, useState } from "react";
 import { Stack, useGlobalSearchParams } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSearchParams } from "expo-router/build/hooks";
 
 const Book = () => {
-  const { id } = useGlobalSearchParams();
+  const { id, title, author, thumbnail } = useGlobalSearchParams();
   const [bookInfo, setBookInfo] = useState<any>(null);
-  useEffect(() => {
-    if (!id) return;
+  // useEffect(() => {
+  //   if (!id) return;
+  //   console.log(id, title);
 
-    const loadBookData = async () => {
-      const getDocument = doc(FIRESTORE_DB, `users/${id}`);
-      const documentSnapshot = await getDoc(getDocument);
+  //   // Load local storage info for each book based on ID
+  //   // const loadBookData = async () => {
+  //   //   const bookDetails = await AsyncStorage.getItem("Books");
+  //   //   if (bookDetails !== null) {
+  //   //     const parsedBookDetails = JSON.parse(bookDetails);
+  //   //   }
+  //   // };
 
-      if (!documentSnapshot.exists()) return;
+  //   // const loadBookData = async () => {
+  //   //   const getDocument = doc(FIRESTORE_DB, `users/${id}`);
+  //   //   const documentSnapshot = await getDoc(getDocument);
 
-      const docData = documentSnapshot.data();
-      setBookInfo(docData);
-    };
+  //   //   if (!documentSnapshot.exists()) return;
 
-    loadBookData();
+  //   //   const docData = documentSnapshot.data();
+  //   //   setBookInfo(docData);
+  //   // };
 
-    console.log(bookInfo);
-  }, [id]);
+  //   // loadBookData();
+
+  //   // console.log(bookInfo);
+
+  //   loadBookData();
+  // }, [id]);
 
   return (
     <ScrollView>
@@ -49,6 +62,20 @@ const Book = () => {
           </View>
         </>
       )}
+
+      <Stack.Screen
+        options={{
+          headerTitle: title ? `${title}` : "---",
+        }}
+      />
+
+      <>
+        <View style={styles.card}>
+          <View style={styles.cardContent}>
+            <Text style={styles.title}>{title}</Text>
+          </View>
+        </View>
+      </>
     </ScrollView>
   );
 };
