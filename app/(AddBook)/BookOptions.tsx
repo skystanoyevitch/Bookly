@@ -1,34 +1,59 @@
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import { addDoc, collection } from "firebase/firestore";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// type Book = {
+//   bookId: string;
+//   volumeInfo: {};
+// };
 
 const BookOptions = () => {
   // const router = useRouter();
   const { bookId, volumeInfo }: any = useLocalSearchParams();
   const parsedPreferences = volumeInfo ? JSON.parse(volumeInfo) : null;
 
-  // const { id, [searchInfo], textSnippet }: any = useLocalSearchParams();
-  // console.log("Destructured data", id, searchInfo, textSnippet);
-  // console.log("params:", bookId, "info:", parsedPreferences.info);
-
-  // const handleOnPress = () => {
-  //   addBook(bookId, parsedPreferences.info);
-  // };
   const addBook = async (id: any, bookInfo: any) => {
-    // After user successfully scanned book and clicked "add", add to newBook object and firebase DB //
+    // 2. create new book object
     const newBook = {
       bookId: id,
       volumeInfo: bookInfo,
     };
-
     try {
-      const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
-      // console.log(db);
+      // 1. Get existing books from local storage
+      const getStoredBooks = await AsyncStorage.getItem("Books");
+      // console.log(getStoredBooks);
+      let listOfBooks = [];
+      if (getStoredBooks) {
+        listOfBooks = JSON.parse(getStoredBooks) || [];
+
+        // Check if the parsed data is not an array (defensive coding)
+        if (!Array.isArray(listOfBooks)) {
+          listOfBooks = [];
+        }
+      }
+
+      // 3. add new book to the end of the array of books
+      listOfBooks.push(newBook);
+
+      // 4. Store book in local storage
+      await AsyncStorage.setItem("Books", JSON.stringify(listOfBooks));
+      console.log("Book saved", listOfBooks);
       router.back();
     } catch (error) {
-      console.log("error adding document", error);
+      console.error("Error saving data:", error);
     }
+
+    // TODO = 5. add book to Firestore Database
+
+    // try {
+    //   const db = await addDoc(collection(FIRESTORE_DB, "users"), newBook);
+    //   // console.log(db);
+    //   router.back();
+    // } catch (error) {
+    //   console.log("error adding document", error);
+    // }
   };
 
   return (
@@ -37,7 +62,7 @@ const BookOptions = () => {
       <Text>Author: {parsedPreferences?.info.authors}</Text>
       <Text>Description: {parsedPreferences?.info.description}</Text>
 
-      <TouchableOpacity onPress={() => addBook(bookId, parsedPreferences.info)}>
+      <Pressable onPress={() => addBook(bookId, parsedPreferences.info)}>
         <Text
           style={{
             padding: 20,
@@ -47,7 +72,7 @@ const BookOptions = () => {
         >
           Add Book
         </Text>
-      </TouchableOpacity>
+      </Pressable>
       <TouchableOpacity>
         <Text>Cancel</Text>
       </TouchableOpacity>
