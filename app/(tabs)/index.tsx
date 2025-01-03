@@ -1,5 +1,6 @@
 import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CameraView, Camera, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
@@ -25,7 +26,6 @@ import {
   View,
 } from "react-native";
 import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const options = [
   { id: "1", label: "QR Code" },
@@ -45,21 +45,44 @@ export default function HomeScreen() {
 
   useEffect(() => {
     // when page loads, get books data from firebase database
-    getAllDocuments();
-  }, [books]);
+    // getAllDocuments();
 
-  const getAllDocuments = async () => {
-    const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
-    const booksData = querySnapshot.docs.map((doc) => {
-      return { id: doc.id, ...doc.data() };
-    });
-    setBooks(booksData);
+    loadCachedBooks();
+  }, []);
+
+  const loadCachedBooks = async () => {
+    // get all keys in local storage (for testing purposes)
+    // const keys = await AsyncStorage.getAllKeys();
+    // const result = await AsyncStorage.multiGet(keys); // Get all key-value pairs
+    // console.log(result);
+
+    try {
+      const getBooks = await AsyncStorage.getItem("Books");
+
+      if (getBooks) {
+        const parsedBookObject = JSON.parse(getBooks);
+        // console.log("Books loaded:", parsedBookObject);
+        setBooks(parsedBookObject);
+      }
+
+      // console.log("parsed Book", books);
+    } catch (error) {
+      console.error("Error loading array:", error);
+    }
   };
+
+  // const getAllDocuments = async () => {
+  //   const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
+  //   const booksData = querySnapshot.docs.map((doc) => {
+  //     return { id: doc.id, ...doc.data() };
+  //   });
+  //   setBooks(booksData);
+  // };
 
   const handleSearch = (query: any) => {
     setSearchQuery(query);
     if (query.trim() !== "") {
-      const filteredData = books.filter((book) =>
+      const filteredData = books.filter((book: any) =>
         book.volumeInfo.title.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredBooks(filteredData);
@@ -73,9 +96,6 @@ export default function HomeScreen() {
     const { status } = await Camera.requestCameraPermissionsAsync();
     if (status === "granted") {
       setHasPermission(true);
-      // setCameraActive(true);
-      // setScanner(false);
-      // setDropdownVisible(false);
     } else {
       setHasPermission(false);
       Alert.alert("Permission denied", "You cannot access the camera.");
@@ -100,14 +120,13 @@ export default function HomeScreen() {
     const bookData = await getBookByIsbn(data);
     // addBook(bookData);
     setCameraActive(false);
-    // console.log(bookData.items[0].volumeInfo);
     router.push({
       pathname: "/(AddBook)/BookOptions",
       params: {
         data: bookData,
         volumeInfo: JSON.stringify({ info: bookData.items[0].volumeInfo }),
         bookId: bookData.items[0].id,
-      }, // Pass book data as params
+      },
     });
   };
 
@@ -127,7 +146,19 @@ export default function HomeScreen() {
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
     <View style={styles.bookListContainer}>
-      <TouchableOpacity onPress={() => router.push(`./(Book)/${item.id}`)}>
+      <TouchableOpacity
+        onPress={() =>
+          router.push(
+            `./(Book)/${item.id}?title=${encodeURIComponent(
+              item.volumeInfo.title
+            )}&author=${encodeURIComponent(
+              item.volumeInfo.authors
+            )}&thumbnail=${encodeURIComponent(
+              item.volumeInfo.imageLinks?.thumbnail
+            )}`
+          )
+        }
+      >
         <Image
           source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
           style={{ width: 100, height: 100 }}
@@ -135,7 +166,7 @@ export default function HomeScreen() {
       </TouchableOpacity>
       <View>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          {item.volumeInfo?.title}
+          Title {item.volumeInfo?.title}
         </Text>
         <Text style={{ fontSize: 14, fontStyle: "italic" }}>
           {item.volumeInfo?.authors}
