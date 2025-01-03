@@ -48,7 +48,7 @@ export default function HomeScreen() {
     // getAllDocuments();
 
     loadCachedBooks();
-  }, []);
+  }, [books]);
 
   const loadCachedBooks = async () => {
     // get all keys in local storage (for testing purposes)
