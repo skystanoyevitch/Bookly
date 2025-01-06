@@ -145,26 +145,35 @@ export default function HomeScreen() {
   // };
 
   const renderItems: ListRenderItem<any> = ({ item }) => (
-    <View style={styles.bookListContainer}>
+    <View key={item.id} style={styles.bookListContainer}>
       <TouchableOpacity
         onPress={() =>
           router.push(
             `./(Book)/${item.id}?title=${encodeURIComponent(
-              item.volumeInfo.title
+              item.volumeInfo?.title
             )}&author=${encodeURIComponent(
-              item.volumeInfo.authors
+              item.volumeInfo?.authors
             )}&thumbnail=${encodeURIComponent(
               item.volumeInfo.imageLinks?.thumbnail
-            )}`
+            )}&identifier=${encodeURIComponent(
+              item.volumeInfo.industryIdentifiers[0]?.identifier
+            )}&pageCount=${encodeURIComponent(
+              item.volumeInfo?.pageCount
+            )}&publishedDate=${encodeURIComponent(
+              item.volumeInfo?.publishedDate
+            )}&description=${encodeURIComponent(item.volumeInfo?.description)}`
           )
         }
       >
-        <Image
-          source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
-          style={{ width: 100, height: 100 }}
-        />
+        <View>
+          <Image
+            source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
       </TouchableOpacity>
-      <View>
+      <View style={{ overflow: "hidden", flex: 1, flexWrap: "wrap" }}>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
           Title {item.volumeInfo?.title}
         </Text>
@@ -260,7 +269,17 @@ const styles = StyleSheet.create({
   bookListContainer: {
     flexDirection: "row",
     gap: 10,
-    paddingVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    margin: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 5, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    // height: 200,
+    width: "90%",
   },
 
   textInput: {
@@ -313,7 +332,17 @@ const styles = StyleSheet.create({
 
   imageBackgroundStyles: {
     width: "100%",
-    height: 150,
+    height: 300,
+  },
+  image: {
+    width: 100,
+    height: 200,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 20,
   },
   camera: {
     width: 300,
