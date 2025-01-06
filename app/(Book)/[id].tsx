@@ -1,13 +1,22 @@
 import { View, Text, ScrollView, StyleSheet, Image } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Stack, useGlobalSearchParams } from "expo-router";
-import { doc, getDoc } from "firebase/firestore";
-import { FIRESTORE_DB } from "@/config/firebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useSearchParams } from "expo-router/build/hooks";
+// import { doc, getDoc } from "firebase/firestore";
+// import { FIRESTORE_DB } from "@/config/firebaseConfig";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Book = () => {
-  const { id, title, author, thumbnail } = useGlobalSearchParams();
+  const {
+    id,
+    title,
+    author,
+    description,
+    thumbnail,
+    identifier,
+    pageCount,
+    publishedDate,
+  } = useGlobalSearchParams();
+  // console.log(description, author, id, title, thumbnail, identifier);
   const [bookInfo, setBookInfo] = useState<any>(null);
   // useEffect(() => {
   //   if (!id) return;
@@ -40,13 +49,13 @@ const Book = () => {
 
   return (
     <ScrollView>
-      <Stack.Screen
+      {/* <Stack.Screen
         options={{
           headerTitle: bookInfo ? `${bookInfo.volumeInfo.title}` : "---",
         }}
-      />
+      /> */}
 
-      {bookInfo && (
+      {/* {bookInfo && (
         <>
           <View style={styles.card}>
             <View style={styles.cardContent}>
@@ -61,7 +70,7 @@ const Book = () => {
             </View>
           </View>
         </>
-      )}
+      )} */}
 
       <Stack.Screen
         options={{
@@ -72,7 +81,18 @@ const Book = () => {
       <>
         <View style={styles.card}>
           <View style={styles.cardContent}>
+            <Image
+              source={
+                typeof thumbnail === "string" ? { uri: thumbnail } : undefined
+              }
+              style={styles.image}
+            />
             <Text style={styles.title}>{title}</Text>
+            <Text style={{ fontSize: 14, textAlign: "center" }}>{author}</Text>
+            <Text style={styles.description}>{description}</Text>
+            <Text style={{ fontSize: 14 }}>{identifier}</Text>
+            <Text style={{ fontSize: 14 }}>{pageCount}</Text>
+            <Text style={{ fontSize: 14 }}>{publishedDate}</Text>
           </View>
         </View>
       </>
@@ -96,9 +116,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   image: {
-    width: "100%",
-    height: 150,
-    resizeMode: "cover",
+    width: 300,
+    height: 300,
+    resizeMode: "contain",
+    alignSelf: "center",
   },
   cardContent: {
     padding: 15,
