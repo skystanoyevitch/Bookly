@@ -1,8 +1,9 @@
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import { addDoc, collection } from "firebase/firestore";
-import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StyleSheet } from "react-native";
 
 // type Book = {
 //   bookId: string;
@@ -13,6 +14,7 @@ const BookOptions = () => {
   // const router = useRouter();
   const { bookId, volumeInfo }: any = useLocalSearchParams();
   const parsedPreferences = volumeInfo ? JSON.parse(volumeInfo) : null;
+  // console.log(parsedPreferences.info.imageLinks.thumbnail);
 
   const addBook = async (id: any, bookInfo: any) => {
     // 2. create new book object
@@ -57,12 +59,19 @@ const BookOptions = () => {
   };
 
   return (
-    <View>
+    <View style={styles.container}>
+      <View style={styles.thumbnailCard}>
+        <Image
+          source={{ uri: parsedPreferences.info.imageLinks?.thumbnail }}
+          style={styles.thumbnail}
+          resizeMode="contain"
+        />
+      </View>
       <Text>Title: {parsedPreferences?.info.title}</Text>
       <Text>Author: {parsedPreferences?.info.authors}</Text>
       <Text>Description: {parsedPreferences?.info.description}</Text>
 
-      <Pressable onPress={() => addBook(bookId, parsedPreferences.info)}>
+      {/* <Pressable onPress={() => addBook(bookId, parsedPreferences.info)}>
         <Text
           style={{
             padding: 20,
@@ -72,12 +81,86 @@ const BookOptions = () => {
         >
           Add Book
         </Text>
-      </Pressable>
-      <TouchableOpacity>
+      </Pressable> */}
+      <View style={styles.buttonGroup}>
+        <Pressable
+          style={styles.skeuomorphicButton}
+          onPress={() => addBook(bookId, parsedPreferences.info)}
+        >
+          <Text style={styles.buttonText}>Done Reading</Text>
+        </Pressable>
+        <Pressable
+          style={styles.skeuomorphicButton}
+          onPress={() => addBook(bookId, parsedPreferences.info)}
+        >
+          <Text style={styles.buttonText}>Currently Reading</Text>
+        </Pressable>
+        <Pressable
+          style={styles.skeuomorphicButton}
+          onPress={() => addBook(bookId, parsedPreferences.info)}
+        >
+          <Text style={styles.buttonText}>Read Later</Text>
+        </Pressable>
+      </View>
+      {/* <TouchableOpacity>
         <Text>Cancel</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
 
 export default BookOptions;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  thumbnailCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 20,
+    alignItems: "center",
+  },
+  thumbnail: {
+    width: 200,
+    height: 350,
+    borderRadius: 10,
+  },
+  buttonContainer: {
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: "gray",
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  buttonText: {
+    color: "black",
+    textAlign: "center",
+  },
+  buttonGroup: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 20,
+  },
+  skeuomorphicButton: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+});
