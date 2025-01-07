@@ -173,14 +173,11 @@ export default function HomeScreen() {
           />
         </View>
       </TouchableOpacity>
-      <View style={{ overflow: "hidden", flex: 1, flexWrap: "wrap" }}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          Title {item.volumeInfo?.title}
-        </Text>
-        <Text style={{ fontSize: 14, fontStyle: "italic" }}>
-          {item.volumeInfo?.authors}
-        </Text>
+      <View>
+        <Text style={styles.title}>Title {item.volumeInfo?.title}</Text>
+        <Text style={styles.author}>{item.volumeInfo?.authors}</Text>
         <Text>{item.volumeInfo?.subtitle}</Text>
+        <Text style={{color: "red"}}>{item?.tag}</Text>
       </View>
     </View>
   );
@@ -281,7 +278,15 @@ const styles = StyleSheet.create({
     // height: 200,
     width: "90%",
   },
-
+  title: {
+    fontSize: 15,
+    fontWeight: "bold",
+    flexShrink: 1,
+  },
+  author: {
+    fontSize: 14,
+    textAlign: "left",
+  },
   textInput: {
     borderColor: "blue",
     borderWidth: 1,
