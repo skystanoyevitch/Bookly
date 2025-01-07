@@ -16,11 +16,12 @@ const BookOptions = () => {
   const parsedPreferences = volumeInfo ? JSON.parse(volumeInfo) : null;
   // console.log(parsedPreferences.info.imageLinks.thumbnail);
 
-  const addBook = async (id: any, bookInfo: any) => {
+  const addBook = async (id: any, bookInfo: any, bookTag: string) => {
     // 2. create new book object
     const newBook = {
       bookId: id,
       volumeInfo: bookInfo,
+      tag: bookTag,
     };
     try {
       // 1. Get existing books from local storage
@@ -85,19 +86,23 @@ const BookOptions = () => {
       <View style={styles.buttonGroup}>
         <Pressable
           style={styles.skeuomorphicButton}
-          onPress={() => addBook(bookId, parsedPreferences.info)}
+          onPress={() =>
+            addBook(bookId, parsedPreferences.info, "Done Reading")
+          }
         >
           <Text style={styles.buttonText}>Done Reading</Text>
         </Pressable>
         <Pressable
           style={styles.skeuomorphicButton}
-          onPress={() => addBook(bookId, parsedPreferences.info)}
+          onPress={() =>
+            addBook(bookId, parsedPreferences.info, "Currently Reading")
+          }
         >
           <Text style={styles.buttonText}>Currently Reading</Text>
         </Pressable>
         <Pressable
           style={styles.skeuomorphicButton}
-          onPress={() => addBook(bookId, parsedPreferences.info)}
+          onPress={() => addBook(bookId, parsedPreferences.info, "Read Later")}
         >
           <Text style={styles.buttonText}>Read Later</Text>
         </Pressable>
