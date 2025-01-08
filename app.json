@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs camera access to scan barcodes."
-      }
+      },
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
