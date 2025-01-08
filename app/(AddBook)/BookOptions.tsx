@@ -19,22 +19,42 @@ import { useState } from "react";
 //   volumeInfo: {};
 // };
 
-const BookOptions = () => {
+interface VolumeInfo {
+  title: string;
+  authors: string[];
+  imageLinks: {
+    thumbnail: string;
+  };
+  industryIdentifiers: {
+    idenfifier: string;
+  }[];
+  pageCount: number;
+  publishedDate: string;
+  description: string;
+  currentPage: number;
+}
+
+interface Book {
+  bookId: string;
+  volumeInfo: VolumeInfo;
+  tag: string;
+}
+
+const BookOptions: React.FC = () => {
   // const router = useRouter();
-  const { bookId, volumeInfo }: any = useLocalSearchParams();
+  const { bookId, volumeInfo }: { bookId: string; volumeInfo: string } =
+    useLocalSearchParams();
   const parsedPreferences = volumeInfo ? JSON.parse(volumeInfo) : null;
-  const [currentlyReading, setCurrentlyReading] = useState<any>(false);
-  const [error, setError] = useState("");
-  const [currentPage, setCurrentPage] = useState("");
-  const [pageCount, setPageCount] = useState(
+  const [currentlyReading, setCurrentlyReading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<string>("");
+  const [pageCount, setPageCount] = useState<string | number>(
     parsedPreferences?.info.pageCount || ""
   );
 
-  // console.log(parsedPreferences.info.imageLinks.thumbnail);
-
-  const addBook = async (id: any, bookInfo: any, bookTag: string) => {
+  const addBook = async (id: string, bookInfo: VolumeInfo, bookTag: string) => {
     // 2. create new book object
-    const newBook = {
+    const newBook: Book = {
       bookId: id,
       volumeInfo: bookInfo,
       tag: bookTag,
@@ -43,7 +63,7 @@ const BookOptions = () => {
       // 1. Get existing books from local storage
       const getStoredBooks = await AsyncStorage.getItem("Books");
       // console.log(getStoredBooks);
-      let listOfBooks = [];
+      let listOfBooks: Book[] = [];
       if (getStoredBooks) {
         listOfBooks = JSON.parse(getStoredBooks) || [];
 
@@ -92,7 +112,7 @@ const BookOptions = () => {
     }
   };
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.thumbnailCard}>
         <Image
           source={{ uri: parsedPreferences.info.imageLinks?.thumbnail }}
@@ -103,18 +123,6 @@ const BookOptions = () => {
       <Text>Title: {parsedPreferences?.info.title}</Text>
       <Text>Author: {parsedPreferences?.info.authors}</Text>
       <Text>Description: {parsedPreferences?.info.description}</Text>
-
-      {/* <Pressable onPress={() => addBook(bookId, parsedPreferences.info)}>
-        <Text
-          style={{
-            padding: 20,
-            borderRadius: 20,
-            backgroundColor: "gray",
-          }}
-        >
-          Add Book
-        </Text>
-      </Pressable> */}
       <View style={styles.buttonGroup}>
         <Pressable
           style={styles.skeuomorphicButton}
@@ -146,7 +154,7 @@ const BookOptions = () => {
             <TextInput
               style={styles.input}
               placeholder="Enter total page count"
-              value={pageCount}
+              value={pageCount.toString()}
               onChangeText={setPageCount}
               keyboardType="numeric"
             />
@@ -170,7 +178,7 @@ const BookOptions = () => {
       {/* <TouchableOpacity>
         <Text>Cancel</Text>
       </TouchableOpacity> */}
-    </ScrollView>
+    </View>
   );
 };
 
