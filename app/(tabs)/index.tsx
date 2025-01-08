@@ -1,54 +1,75 @@
 import { getBookByIsbn } from "@/api/books";
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CameraView, Camera, useCameraPermissions } from "expo-camera";
+import { CameraView, Camera } from "expo-camera";
 import { useRouter } from "expo-router";
-import { navigate } from "expo-router/build/global-state/routing";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-} from "firebase/firestore";
+// import {
+//   addDoc,
+//   collection,
+//   getDocs,
+//   onSnapshot,
+//   query,
+// } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   Alert,
-  Button,
   FlatList,
   Image,
-  ListRenderItem,
-  Modal,
   Pressable,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
+  Text,
 } from "react-native";
-import { Text } from "react-native";
+interface VolumeInfo {
+  title: string;
+  authors: string[];
+  subtitle: string;
+  imageLinks: {
+    thumbnail: string;
+  };
+  industryIdentifiers: {
+    identifier: string;
+  }[];
+  pageCount: number;
+  publishedDate: string;
+  description: string;
+  currentPage?: number;
+}
 
+interface Book {
+  bookId: string;
+  volumeInfo: VolumeInfo;
+  tag: string;
+  // pageCount: number;
+}
+
+interface Option {
+  id: string;
+  label: string;
+}
 const options = [
   { id: "1", label: "QR Code" },
   { id: "2", label: "Search Online" },
   { id: "3", label: "Add Manually" },
 ];
 
-export default function HomeScreen() {
-  const [hasPermission, setHasPermission] = useState<any | null>(null);
-  const [scanner, setScanner] = useState(false);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [books, setBooks] = useState<any[]>([]);
+const BookList: React.FC = () => {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [cameraActive, setCameraActive] = useState<boolean>(false);
+  const [scanner, setScanner] = useState<boolean>(false);
+  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const router = useRouter();
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredBooks, setFilteredBooks] = useState<any[]>([]);
 
   useEffect(() => {
-    // when page loads, get books data from firebase database
+    // TODO: when page loads, get books data from firebase database
     // getAllDocuments();
-
     loadCachedBooks();
-  }, [books]);
+  }, []);
 
   const loadCachedBooks = async () => {
     // get all keys in local storage (for testing purposes)
@@ -64,13 +85,13 @@ export default function HomeScreen() {
         // console.log("Books loaded:", parsedBookObject);
         setBooks(parsedBookObject);
       }
-
       // console.log("parsed Book", books);
     } catch (error) {
       console.error("Error loading Books:", error);
     }
   };
 
+  // TODO: get all documents from firestore
   // const getAllDocuments = async () => {
   //   const querySnapshot = await getDocs(collection(FIRESTORE_DB, "users"));
   //   const booksData = querySnapshot.docs.map((doc) => {
@@ -79,9 +100,9 @@ export default function HomeScreen() {
   //   setBooks(booksData);
   // };
 
-  const handleSearch = (query: any) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim() !== "") {
+    if (query) {
       const filteredData = books.filter((book: any) =>
         book.volumeInfo.title.toLowerCase().includes(query.toLowerCase())
       );
@@ -89,6 +110,11 @@ export default function HomeScreen() {
     } else if (query.trim() === "") {
       return books;
     }
+  };
+
+  const calculateProgress = (currentPage: number, pageCount: number) => {
+    if (!currentPage || !pageCount) return 0;
+    return (currentPage / pageCount) * 100;
   };
 
   const getCameraPermissions = async () => {
@@ -106,7 +132,7 @@ export default function HomeScreen() {
     setDropdownVisible((prevState) => !prevState);
   };
 
-  const handleOptionPress = (option: any) => {
+  const handleOptionPress = (option: Option) => {
     if (option.label === "QR Code") {
       getCameraPermissions();
       setCameraActive(true);
@@ -115,7 +141,7 @@ export default function HomeScreen() {
     }
   };
 
-  const handleBarcodeScanner = async ({ data }: any) => {
+  const handleBarcodeScanner = async ({ data }: { data: string }) => {
     setScanner(true);
     const bookData = await getBookByIsbn(data);
     // addBook(bookData);
@@ -144,38 +170,28 @@ export default function HomeScreen() {
   //   }
   // };
 
-  const calculateProgress = (currentPage: any, pageCount: any) => {
-    if (!currentPage || !pageCount) return 0;
-    return (currentPage / pageCount) * 100;
-  };
-
-  const renderItems = ({ item }: any) => {
+  const renderBookItem = ({ item }: { item: Book }) => {
     const progress = calculateProgress(
-      item.volumeInfo?.currentPage,
+      item.volumeInfo?.currentPage ?? 0,
       item.volumeInfo?.pageCount
     );
-
+    const bookUrl = {
+      title: item.volumeInfo?.title ?? "",
+      author: item.volumeInfo?.authors.join(", ") ?? "",
+      thumbnail: item.volumeInfo.imageLinks?.thumbnail ?? "",
+      identifier: item.volumeInfo.industryIdentifiers[0]?.identifier ?? "",
+      pageCount: item.volumeInfo?.pageCount ?? "",
+      publishedDate: item.volumeInfo?.publishedDate ?? "",
+      description: item.volumeInfo?.description ?? "",
+    };
     return (
-      <View key={item.id} style={styles.bookListContainer}>
+      <View style={styles.bookListContainer}>
         <TouchableOpacity
           onPress={() =>
-            router.push(
-              `./(Book)/${item.id}?title=${encodeURIComponent(
-                item.volumeInfo?.title
-              )}&author=${encodeURIComponent(
-                item.volumeInfo?.authors
-              )}&thumbnail=${encodeURIComponent(
-                item.volumeInfo.imageLinks?.thumbnail
-              )}&identifier=${encodeURIComponent(
-                item.volumeInfo.industryIdentifiers[0]?.identifier
-              )}&pageCount=${encodeURIComponent(
-                item.volumeInfo?.pageCount
-              )}&publishedDate=${encodeURIComponent(
-                item.volumeInfo?.publishedDate
-              )}&description=${encodeURIComponent(
-                item.volumeInfo?.description
-              )}&pageCount=${encodeURIComponent(item?.pageCount)}`
-            )
+            router.push({
+              pathname: `./(Book)/${item.bookId}`,
+              params: bookUrl,
+            })
           }
         >
           <View>
@@ -188,9 +204,11 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <View>
           <Text style={styles.title}>Title {item.volumeInfo?.title}</Text>
-          <Text style={styles.author}>{item.volumeInfo?.authors}</Text>
+          <Text style={styles.author}>
+            {item.volumeInfo?.authors.join(", ")}
+          </Text>
           <Text>{item.volumeInfo?.subtitle}</Text>
-          <Text style={styles.tag}>{item?.tag}</Text>
+          <Text style={[styles.tag]}>{item?.tag}</Text>
           {item.tag === "Currently Reading" && (
             <View style={styles.progressBarContainer}>
               <View style={[styles.progressBar, { width: `${progress}%` }]} />
@@ -213,8 +231,8 @@ export default function HomeScreen() {
       <FlatList
         style={{ marginLeft: 20, marginRight: 20 }}
         data={searchQuery ? filteredBooks : books}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItems}
+        keyExtractor={(item) => item.bookId}
+        renderItem={renderBookItem}
       />
       {!cameraActive ? (
         <Pressable style={styles.buttonStyle} onPress={onOpenDropdownList}>
@@ -262,7 +280,7 @@ export default function HomeScreen() {
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -416,3 +434,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#76c7c0",
   },
 });
+
+export default BookList;
