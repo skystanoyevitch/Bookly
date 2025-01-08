@@ -67,7 +67,7 @@ export default function HomeScreen() {
 
       // console.log("parsed Book", books);
     } catch (error) {
-      console.error("Error loading array:", error);
+      console.error("Error loading Books:", error);
     }
   };
 
@@ -144,43 +144,62 @@ export default function HomeScreen() {
   //   }
   // };
 
-  const renderItems: ListRenderItem<any> = ({ item }) => (
-    <View key={item.id} style={styles.bookListContainer}>
-      <TouchableOpacity
-        onPress={() =>
-          router.push(
-            `./(Book)/${item.id}?title=${encodeURIComponent(
-              item.volumeInfo?.title
-            )}&author=${encodeURIComponent(
-              item.volumeInfo?.authors
-            )}&thumbnail=${encodeURIComponent(
-              item.volumeInfo.imageLinks?.thumbnail
-            )}&identifier=${encodeURIComponent(
-              item.volumeInfo.industryIdentifiers[0]?.identifier
-            )}&pageCount=${encodeURIComponent(
-              item.volumeInfo?.pageCount
-            )}&publishedDate=${encodeURIComponent(
-              item.volumeInfo?.publishedDate
-            )}&description=${encodeURIComponent(item.volumeInfo?.description)}`
-          )
-        }
-      >
+  const calculateProgress = (currentPage: any, pageCount: any) => {
+    if (!currentPage || !pageCount) return 0;
+    return (currentPage / pageCount) * 100;
+  };
+
+  const renderItems = ({ item }: any) => {
+    const progress = calculateProgress(
+      item.volumeInfo?.currentPage,
+      item.volumeInfo?.pageCount
+    );
+
+    return (
+      <View key={item.id} style={styles.bookListContainer}>
+        <TouchableOpacity
+          onPress={() =>
+            router.push(
+              `./(Book)/${item.id}?title=${encodeURIComponent(
+                item.volumeInfo?.title
+              )}&author=${encodeURIComponent(
+                item.volumeInfo?.authors
+              )}&thumbnail=${encodeURIComponent(
+                item.volumeInfo.imageLinks?.thumbnail
+              )}&identifier=${encodeURIComponent(
+                item.volumeInfo.industryIdentifiers[0]?.identifier
+              )}&pageCount=${encodeURIComponent(
+                item.volumeInfo?.pageCount
+              )}&publishedDate=${encodeURIComponent(
+                item.volumeInfo?.publishedDate
+              )}&description=${encodeURIComponent(
+                item.volumeInfo?.description
+              )}&pageCount=${encodeURIComponent(item?.pageCount)}`
+            )
+          }
+        >
+          <View>
+            <Image
+              source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+          </View>
+        </TouchableOpacity>
         <View>
-          <Image
-            source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
-            style={styles.image}
-            resizeMode="contain"
-          />
+          <Text style={styles.title}>Title {item.volumeInfo?.title}</Text>
+          <Text style={styles.author}>{item.volumeInfo?.authors}</Text>
+          <Text>{item.volumeInfo?.subtitle}</Text>
+          <Text style={styles.tag}>{item?.tag}</Text>
+          {item.tag === "Currently Reading" && (
+            <View style={styles.progressBarContainer}>
+              <View style={[styles.progressBar, { width: `${progress}%` }]} />
+            </View>
+          )}
         </View>
-      </TouchableOpacity>
-      <View>
-        <Text style={styles.title}>Title {item.volumeInfo?.title}</Text>
-        <Text style={styles.author}>{item.volumeInfo?.authors}</Text>
-        <Text>{item.volumeInfo?.subtitle}</Text>
-        <Text style={{color: "red"}}>{item?.tag}</Text>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -352,5 +371,48 @@ const styles = StyleSheet.create({
   camera: {
     width: 300,
     height: 300,
+  },
+  tag: {
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    borderRadius: 5,
+    marginTop: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+    borderColor: "#ddd",
+    borderWidth: 1,
+  },
+  currentlyreading: {
+    backgroundColor: "#76c7c0",
+    color: "#fff",
+  },
+  readlater: {
+    backgroundColor: "#f0ad4e",
+    color: "#fff",
+  },
+  donereading: {
+    backgroundColor: "#5cb85c",
+    color: "#fff",
+  },
+  progressBarContainer: {
+    height: 10,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#76c7c0",
   },
 });
