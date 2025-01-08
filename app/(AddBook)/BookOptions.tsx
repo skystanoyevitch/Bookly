@@ -1,9 +1,18 @@
 import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import { addDoc, collection } from "firebase/firestore";
-import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StyleSheet } from "react-native";
+import { useState } from "react";
 
 // type Book = {
 //   bookId: string;
@@ -14,6 +23,13 @@ const BookOptions = () => {
   // const router = useRouter();
   const { bookId, volumeInfo }: any = useLocalSearchParams();
   const parsedPreferences = volumeInfo ? JSON.parse(volumeInfo) : null;
+  const [currentlyReading, setCurrentlyReading] = useState<any>(false);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState("");
+  const [pageCount, setPageCount] = useState(
+    parsedPreferences?.info.pageCount || ""
+  );
+
   // console.log(parsedPreferences.info.imageLinks.thumbnail);
 
   const addBook = async (id: any, bookInfo: any, bookTag: string) => {
@@ -59,8 +75,24 @@ const BookOptions = () => {
     // }
   };
 
+  const handleCurrentlyReading = () => {
+    if (
+      isNaN(Number(currentPage)) ||
+      Number(currentPage) < 1 ||
+      Number(currentPage) > Number(pageCount)
+    ) {
+      setError("Please enter a valid page number.");
+    } else {
+      setError("");
+      addBook(
+        bookId,
+        { ...parsedPreferences.info, currentPage, pageCount },
+        "Currently Reading"
+      );
+    }
+  };
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.thumbnailCard}>
         <Image
           source={{ uri: parsedPreferences.info.imageLinks?.thumbnail }}
@@ -94,9 +126,7 @@ const BookOptions = () => {
         </Pressable>
         <Pressable
           style={styles.skeuomorphicButton}
-          onPress={() =>
-            addBook(bookId, parsedPreferences.info, "Currently Reading")
-          }
+          onPress={() => setCurrentlyReading(!currentlyReading)}
         >
           <Text style={styles.buttonText}>Currently Reading</Text>
         </Pressable>
@@ -107,10 +137,40 @@ const BookOptions = () => {
           <Text style={styles.buttonText}>Read Later</Text>
         </Pressable>
       </View>
+      {currentlyReading && (
+        <View style={styles.currentlyReadingCard}>
+          <Text style={styles.cardTitle}>
+            Page Count: {pageCount || "Not available"}
+          </Text>
+          {!pageCount && (
+            <TextInput
+              style={styles.input}
+              placeholder="Enter total page count"
+              value={pageCount}
+              onChangeText={setPageCount}
+              keyboardType="numeric"
+            />
+          )}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter current page"
+            value={currentPage}
+            onChangeText={setCurrentPage}
+            keyboardType="numeric"
+          />
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          <Pressable
+            style={styles.skeuomorphicButton}
+            onPress={handleCurrentlyReading}
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </Pressable>
+        </View>
+      )}
       {/* <TouchableOpacity>
         <Text>Cancel</Text>
       </TouchableOpacity> */}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -167,5 +227,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 10,
+  },
+  currentlyReadingCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 20,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
   },
 });
