@@ -1,4 +1,4 @@
-import { FIRESTORE_DB } from "@/config/firebaseConfig";
+// import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import { addDoc, collection } from "firebase/firestore";
 import {
