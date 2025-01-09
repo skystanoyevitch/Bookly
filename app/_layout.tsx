@@ -6,9 +6,9 @@ const RootLayout = () => {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
-        name="(Book)/[id]"
+        name="(Book-Details)/[id]"
         options={{
-          title: "Book",
+          title: "Book-Details",
         }}
       />
       <Stack.Screen
