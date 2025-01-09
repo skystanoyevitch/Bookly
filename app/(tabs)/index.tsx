@@ -1,7 +1,7 @@
 import { getBookByIsbn } from "@/api/books";
-import { FIRESTORE_DB } from "@/config/firebaseConfig";
+// import { FIRESTORE_DB } from "@/config/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CameraView, Camera } from "expo-camera";
+// import { CameraView, Camera } from "expo-camera";
 import { useRouter } from "expo-router";
 // import {
 //   addDoc,
@@ -17,11 +17,15 @@ import {
   Image,
   Pressable,
   StyleSheet,
-  TextInput,
-  TouchableOpacity,
+  // TextInput,
+  // TouchableOpacity,
   View,
   Text,
 } from "react-native";
+import ScannerView from "../components/ScannerView";
+import BookItem from "../components/BookItem";
+import SearchBar from "../components/SearchBar";
+
 interface VolumeInfo {
   title: string;
   authors: string[];
@@ -42,7 +46,6 @@ interface Book {
   bookId: string;
   volumeInfo: VolumeInfo;
   tag: string;
-  // pageCount: number;
 }
 
 interface Option {
@@ -62,7 +65,7 @@ const BookList: React.FC = () => {
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [scanner, setScanner] = useState<boolean>(false);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  // const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -73,16 +76,12 @@ const BookList: React.FC = () => {
 
   const loadCachedBooks = async () => {
     // get all keys in local storage (for testing purposes)
-    // const keys = await AsyncStorage.getAllKeys();
-    // const result = await AsyncStorage.multiGet(keys); // Get all key-value pairs
-    // console.log(result);
-
     try {
       const getBooks = await AsyncStorage.getItem("Books");
 
       if (getBooks) {
         const parsedBookObject = JSON.parse(getBooks);
-        // console.log("Books loaded:", parsedBookObject);
+        console.log("Books loaded:", parsedBookObject);
         setBooks(parsedBookObject);
       }
       // console.log("parsed Book", books);
@@ -107,26 +106,26 @@ const BookList: React.FC = () => {
         book.volumeInfo.title.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredBooks(filteredData);
-    } else if (query.trim() === "") {
-      return books;
+    } else {
+      setFilteredBooks(books);
     }
   };
 
-  const calculateProgress = (currentPage: number, pageCount: number) => {
+  const calculateProgress = (currentPage?: number, pageCount?: number) => {
     if (!currentPage || !pageCount) return 0;
     return (currentPage / pageCount) * 100;
   };
 
-  const getCameraPermissions = async () => {
-    // ask user for permission to use camera
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      setHasPermission(true);
-    } else {
-      setHasPermission(false);
-      Alert.alert("Permission denied", "You cannot access the camera.");
-    }
-  };
+  // const getCameraPermissions = async () => {
+  //   // ask user for permission to use camera
+  //   const { status } = await Camera.requestCameraPermissionsAsync();
+  //   if (status === "granted") {
+  //     setHasPermission(true);
+  //   } else {
+  //     setHasPermission(false);
+  //     Alert.alert("Permission denied", "You cannot access the camera.");
+  //   }
+  // };
 
   const onOpenDropdownList = () => {
     setDropdownVisible((prevState) => !prevState);
@@ -134,7 +133,7 @@ const BookList: React.FC = () => {
 
   const handleOptionPress = (option: Option) => {
     if (option.label === "QR Code") {
-      getCameraPermissions();
+      // getCameraPermissions();
       setCameraActive(true);
       setScanner(false);
       setDropdownVisible(false);
@@ -170,76 +169,83 @@ const BookList: React.FC = () => {
   //   }
   // };
 
-  const renderBookItem = ({ item }: { item: Book }) => {
-    const progress = calculateProgress(
-      item.volumeInfo?.currentPage ?? 0,
-      item.volumeInfo?.pageCount
-    );
-    const bookUrl = {
-      title: item.volumeInfo?.title ?? "",
-      author: item.volumeInfo?.authors.join(", ") ?? "",
-      thumbnail: item.volumeInfo.imageLinks?.thumbnail ?? "",
-      identifier: item.volumeInfo.industryIdentifiers[0]?.identifier ?? "",
-      pageCount: item.volumeInfo?.pageCount ?? "",
-      publishedDate: item.volumeInfo?.publishedDate ?? "",
-      description: item.volumeInfo?.description ?? "",
-    };
-    return (
-      <View style={styles.bookListContainer}>
-        <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: `./(Book)/${item.bookId}`,
-              params: bookUrl,
-            })
-          }
-        >
-          <View>
-            <Image
-              source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
-              style={styles.image}
-              resizeMode="contain"
-            />
-          </View>
-        </TouchableOpacity>
-        <View>
-          <Text style={styles.title}>Title {item.volumeInfo?.title}</Text>
-          <Text style={styles.author}>
-            {item.volumeInfo?.authors.join(", ")}
-          </Text>
-          <Text>{item.volumeInfo?.subtitle}</Text>
-          <Text style={[styles.tag]}>{item?.tag}</Text>
-          {item.tag === "Currently Reading" && (
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${progress}%` }]} />
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
+  // todo: rendered bookItem
+  // const renderBookItem = ({ item }: { item: Book }) => {
+  //   const progress = calculateProgress(
+  //     item.volumeInfo?.currentPage ?? 0,
+  //     item.volumeInfo?.pageCount
+  //   );
+  //   const bookUrl = {
+  //     title: item.volumeInfo?.title ?? "",
+  //     author: item.volumeInfo?.authors.join(", ") ?? "",
+  //     thumbnail: item.volumeInfo.imageLinks?.thumbnail ?? "",
+  //     identifier: item.volumeInfo.industryIdentifiers[0]?.identifier ?? "",
+  //     pageCount: item.volumeInfo?.pageCount ?? "",
+  //     publishedDate: item.volumeInfo?.publishedDate ?? "",
+  //     description: item.volumeInfo?.description ?? "",
+  //   };
+  //   return (
+  //     <View style={styles.bookListContainer}>
+  //       <TouchableOpacity
+  //         onPress={() =>
+  //           router.push({
+  //             pathname: `./(Book)/${item.bookId}`,
+  //             params: bookUrl,
+  //           })
+  //         }
+  //       >
+  //         <View>
+  //           <Image
+  //             source={{ uri: item.volumeInfo.imageLinks?.thumbnail }}
+  //             style={styles.image}
+  //             resizeMode="contain"
+  //           />
+  //         </View>
+  //       </TouchableOpacity>
+  //       <View>
+  //         <Text style={styles.title}>Title {item.volumeInfo?.title}</Text>
+  //         <Text style={styles.author}>
+  //           {item.volumeInfo?.authors.join(", ")}
+  //         </Text>
+  //         <Text>{item.volumeInfo?.subtitle}</Text>
+  //         <Text style={[styles.tag]}>{item?.tag}</Text>
+  //         {item.tag === "Currently Reading" && (
+  //           <View style={styles.progressBarContainer}>
+  //             <View style={[styles.progressBar, { width: `${progress}%` }]} />
+  //           </View>
+  //         )}
+  //       </View>
+  //     </View>
+  //   );
+  // };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search books..."
-        value={searchQuery}
-        onChangeText={handleSearch}
+      <SearchBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
       />
 
-      <FlatList
-        style={{ marginLeft: 20, marginRight: 20 }}
-        data={searchQuery ? filteredBooks : books}
-        keyExtractor={(item) => item.bookId}
-        renderItem={renderBookItem}
-      />
+      {cameraActive ? (
+        <ScannerView />
+      ) : (
+        <FlatList
+          style={{ marginLeft: 20, marginRight: 20 }}
+          data={searchQuery ? filteredBooks : books}
+          keyExtractor={(item) => item.bookId}
+          renderItem={({ item }) => (
+            <BookItem book={item} calculateProgress={calculateProgress} />
+          )}
+        />
+      )}
+
       {!cameraActive ? (
         <Pressable style={styles.buttonStyle} onPress={onOpenDropdownList}>
           <Text>+</Text>
         </Pressable>
-      ) : (
-        <View>
+      ) : null}
+      {/* <View>
           <CameraView
             style={styles.camera}
             facing="back"
@@ -258,8 +264,7 @@ const BookList: React.FC = () => {
           >
             <Text>X</Text>
           </Pressable>
-        </View>
-      )}
+        </View> */}
 
       {dropdownVisible && (
         <View style={styles.dropdown}>
