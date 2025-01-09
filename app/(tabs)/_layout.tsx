@@ -6,12 +6,7 @@ export default function TabLayout() {
 
   return (
     <Tabs>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Bookshelf",
-        }}
-      />
+      <Tabs.Screen name="index" options={{ title: "Bookshelf" }} />
       <Tabs.Screen
         name="Stats"
         options={{
