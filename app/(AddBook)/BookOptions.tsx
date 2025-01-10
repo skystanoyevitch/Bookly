@@ -78,7 +78,7 @@ const BookOptions: React.FC = () => {
 
       // 4. Store book in local storage
       await AsyncStorage.setItem("Books", JSON.stringify(listOfBooks));
-      console.log("Book saved", listOfBooks);
+      // console.log("Book saved", listOfBooks);
       router.back();
     } catch (error) {
       console.error("Error saving data:", error);
