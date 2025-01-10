@@ -6,17 +6,19 @@ const RootLayout = () => {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
-        name="(Book-Details)/[id]"
+        name="(Book)/[id]"
         options={{
-          title: "Book-Details",
+          headerShown: true,
+          headerBackTitle: "Back to Bookshelf",
         }}
       />
       <Stack.Screen
         name="(AddBook)/BookOptions"
         options={{
           presentation: "modal", // Enables modal style navigation for iOS
-          title: "AddBook",
+          title: "Add Book",
           headerShown: true,
+          headerBackTitle: "Back to Bookshelf",
         }}
       />
     </Stack>
