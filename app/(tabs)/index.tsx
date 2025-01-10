@@ -81,7 +81,7 @@ const BookList: React.FC = () => {
 
       if (getBooks) {
         const parsedBookObject = JSON.parse(getBooks);
-        console.log("Books loaded:", parsedBookObject);
+        // console.log("Books loaded:", parsedBookObject);
         setBooks(parsedBookObject);
       }
       // console.log("parsed Book", books);
