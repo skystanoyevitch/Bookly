@@ -49,7 +49,7 @@ const BookItem: React.FC<BookItemProps> = ({ book, calculateProgress }) => {
       <TouchableOpacity
         onPress={() =>
           router.push({
-            pathname: `./(Book)/${book.bookId}`,
+            pathname: `../(Book)/${book.bookId}`,
             params: bookUrl,
           })
         }
@@ -63,7 +63,7 @@ const BookItem: React.FC<BookItemProps> = ({ book, calculateProgress }) => {
         </View>
       </TouchableOpacity>
       <View>
-        <Text style={styles.title}>Title {book.volumeInfo?.title}</Text>
+        <Text style={styles.title}>{book.volumeInfo?.title}</Text>
         <Text style={styles.author}>{book.volumeInfo?.authors.join(", ")}</Text>
         <Text>{book.volumeInfo?.subtitle}</Text>
         <Text style={styles.tag}>{book?.tag}</Text>
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginTop: 10,
-    textAlign: "center",
+    textAlign: "left",
   },
   author: {
     fontSize: 14,
